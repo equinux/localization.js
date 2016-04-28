@@ -1,0 +1,34 @@
+{
+  "name": "localization.js",
+  "description": "PLI localization for React apps",
+  "version": "0.1.1",
+  "author": "Dominique d'Argent (argent@equinux.com)",
+  "homepage": "http://equinux.com/",
+  "repository": "equinux/localization.js",
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "grunt test",
+    "test-tap": "grunt test:tap"
+  },
+  "bin": {
+    "localize": "bin/localization.js"
+  },
+  "keywords": [
+    "PLI",
+    "cli",
+    "localization",
+    "tool"
+  ],
+  "dependencies": {
+    "babel-core": "^6.7.7",
+    "glob": "^7.0.0",
+    "i18n-strings-files": "https://github.com/maxsz/i18n-strings-files/tarball/ddae0adb172a36670a99bb89b1daa7031e7e8f3f"
+  },
+  "devDependencies": {},
+  "files": [
+    "bin"
+  ]
+}
