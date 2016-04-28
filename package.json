@@ -1,17 +1,13 @@
 {
   "name": "localization.js",
   "description": "PLI localization for React apps",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "author": "Dominique d'Argent (argent@equinux.com)",
   "homepage": "http://equinux.com/",
   "repository": "equinux/localization.js",
   "license": "MIT",
   "engines": {
-    "node": ">=0.10.0"
-  },
-  "scripts": {
-    "test": "grunt test",
-    "test-tap": "grunt test:tap"
+    "node": ">=6.0.0"
   },
   "bin": {
     "localize": "bin/localization.js"

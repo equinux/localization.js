@@ -13,6 +13,10 @@ const path = require('path');
 const commandLineArgs = require('command-line-args');
 
 const cli = commandLineArgs([
+<<<<<<< ae29f1bb47a5c9a8c5c72ad72aa52938b9298c5a
+=======
+  { name: 'base-url', type: String },
+>>>>>>> Add simple CLI node package
   { name: 'pid', type: String },
   { name: 'loc-version', type: String, defaultValue: '1.0' },
   { name: 'group', type: String },
@@ -23,14 +27,30 @@ const cli = commandLineArgs([
 
 const options = cli.parse();
 
+if (!options['base-url']) {
+  throw new Error('Missing base URL');
+}
+
+if (!options.pid) {
+  throw new Error('Missing PID');
+}
+
+if (!options.pid) {
+  throw new Error('Missing group');
+}
+
+if (!options.language) {
+  throw new Error('Missing language');
+}
+
 const FILE_PATTERN = 'src/**/*.js';
 const OUTPUT_DIR = options['output-path'];
 const APP_PID = options.pid;
 const LOC_VERSION = options['loc-version'];
 const LOC_GROUP = options.group;
 const LANGUAGE_CODE = options['upload-language'];
-const UPLOAD_URL = `https://intranet.muc.equinux.net/software/pli/uploadStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&groupID=${LOC_GROUP}&language=${LANGUAGE_CODE}`;
-const DOWNLOAD_URL = `https://intranet.muc.equinux.net/software/pli/getStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&group=${LOC_GROUP}`;
+const UPLOAD_URL = `${options['base-url']}/uploadStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&groupID=${LOC_GROUP}&language=${LANGUAGE_CODE}`;
+const DOWNLOAD_URL = `${options['base-url']}/getStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&group=${LOC_GROUP}`;
 const LANGUAGES = options.language;
 
 console.dir({
