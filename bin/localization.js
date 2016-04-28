@@ -10,16 +10,28 @@ const url = require('url');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const commandLineArgs = require('command-line-args');
+
+const cli = commandLineArgs([
+  { name: 'pid', type: String },
+  { name: 'loc-version', type: String, defaultValue: '1.0' },
+  { name: 'group', type: String },
+  { name: 'language', type: String, multiple: true },
+  { name: 'upload-language', type: String, defaultValue: 'en' },
+  { name: 'output-path', type: String, defaultValue: 'src/translations/' }
+])
+
+const options = cli.parse();
 
 const FILE_PATTERN = 'src/**/*.js';
-const OUTPUT_DIR = 'src/translations';
-const APP_PID = 'PID169';
-const LOC_VERSION = '1.0';
-const LOC_GROUP = 'LG646';
-const LANGUAGE_CODE = 'en';
+const OUTPUT_DIR = options['output-path'];
+const APP_PID = options.pid;
+const LOC_VERSION = options['loc-version'];
+const LOC_GROUP = options.group;
+const LANGUAGE_CODE = options['upload-language'];
 const UPLOAD_URL = `https://intranet.muc.equinux.net/software/pli/uploadStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&groupID=${LOC_GROUP}&language=${LANGUAGE_CODE}`;
 const DOWNLOAD_URL = `https://intranet.muc.equinux.net/software/pli/getStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&group=${LOC_GROUP}`;
-const LANGUAGES = ['en', 'de'];
+const LANGUAGES = options.language;
 
 console.dir({
   FILE_PATTERN,
@@ -35,7 +47,7 @@ console.dir({
 console.log("\n");
 
 const args = process.argv;
-if (args.length != 3) {
+if (args.length < 3) {
   throw new Error('Invalid usage!');
 }
 
