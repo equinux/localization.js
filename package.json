@@ -1,7 +1,7 @@
 {
   "name": "localization.js",
   "description": "PLI localization for React apps",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "author": "Dominique d'Argent (argent@equinux.com)",
   "homepage": "http://equinux.com/",
   "repository": "equinux/localization.js",
