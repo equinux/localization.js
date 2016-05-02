@@ -154,16 +154,16 @@ function doDownloadLanguage(language) {
     path: downloadUrl.path,
     rejectUnauthorized: false
   }, function(res) {
+    var chunks = new String;
+
     res.setEncoding('utf8');
-
     res.on('data', chunk => {
-      // console.log('Response: ', chunk);
+      chunks += chunk;
+    });
 
-      const messages = i18nStringsFiles.parse(chunk, { encoding: 'utf8', wantsComments: true });
-      // console.log('messages', messages);
-
+    res.on('end', () => {
+      const messages = i18nStringsFiles.parse(chunks, { encoding: 'utf8', wantsComments: true });
       const keys = Object.keys(messages);
-
       const data = keys.reduce((collection, key) => {
         const message = messages[key];
 
@@ -171,14 +171,12 @@ function doDownloadLanguage(language) {
 
         return collection;
       }, {});
-      // console.log('data', data);
 
       const outputPath = path.format({
         dir: OUTPUT_DIR,
         name: language,
         ext: '.json'
       });
-      // console.log('outputPath', outputPath);
 
       fs.writeFile(outputPath, JSON.stringify(data, null, 4), function(err) {
         if(err) {
@@ -187,9 +185,6 @@ function doDownloadLanguage(language) {
           console.log(`Written ${keys.length} messages to ${outputPath}.`);
         }
       });
-    });
-    res.on('end', () => {
-      // console.log("statusCode: ", res.statusCode);
     });
   });
 }
