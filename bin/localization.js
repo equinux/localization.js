@@ -13,16 +13,13 @@ const path = require('path');
 const commandLineArgs = require('command-line-args');
 
 const cli = commandLineArgs([
-<<<<<<< ae29f1bb47a5c9a8c5c72ad72aa52938b9298c5a
-=======
   { name: 'base-url', type: String },
->>>>>>> Add simple CLI node package
   { name: 'pid', type: String },
   { name: 'loc-version', type: String, defaultValue: '1.0' },
   { name: 'group', type: String },
   { name: 'language', type: String, multiple: true },
   { name: 'upload-language', type: String, defaultValue: 'en' },
-  { name: 'output-path', type: String, defaultValue: 'src/translations/' }
+  { name: 'output-path', type: String, defaultValue: 'src/translations' }
 ])
 
 const options = cli.parse();
