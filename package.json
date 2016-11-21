@@ -1,7 +1,7 @@
 {
   "name": "localization.js",
   "description": "PLI localization for React apps",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "author": "Dominique d'Argent (argent@equinux.com)",
   "homepage": "http://equinux.com/",
   "repository": "equinux/localization.js",
@@ -23,7 +23,7 @@
     "command-line-args": "^3.0.3",
     "glob": "^7.1.1",
     "i18n-strings-files": "^1.0.2",
-    "react-intl": "^2.1.5"
+    "babel-plugin-react-intl": "^2.2.0"
   },
   "devDependencies": {},
   "files": [
