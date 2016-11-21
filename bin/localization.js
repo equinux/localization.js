@@ -80,7 +80,7 @@ function doUpload() {
   // extract messages
   const messages = globSync(FILE_PATTERN)
     .map(path =>
-        babel.transformFileSync(path, { plugins: ['react-intl'] }).metadata['react-intl'].messages
+        babel.transformFileSync(path, { }).metadata['react-intl'].messages
     )
     .reduce((collection, descriptors) => {
       descriptors.forEach(descriptor => {
