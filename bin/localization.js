@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 const commandLineArgs = require('command-line-args');
 
-const cli = commandLineArgs([
+const options = commandLineArgs([
   { name: 'base-url', type: String },
   { name: 'pid', type: String },
   { name: 'loc-version', type: String, defaultValue: '1.0' },
@@ -21,8 +21,6 @@ const cli = commandLineArgs([
   { name: 'upload-language', type: String, defaultValue: 'en' },
   { name: 'output-path', type: String, defaultValue: 'src/translations' }
 ])
-
-const options = cli.parse();
 
 if (!options['base-url']) {
   throw new Error('Missing base URL');
