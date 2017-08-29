@@ -14,6 +14,7 @@ const commandLineArgs = require('command-line-args');
 
 const options = commandLineArgs([
   { name: 'base-url', type: String },
+  { name: 'file-pattern', type: String, defaultValue: 'src/**/*.js' },
   { name: 'pid', type: String },
   { name: 'loc-version', type: String, defaultValue: '1.0' },
   { name: 'group', type: String },
@@ -38,7 +39,7 @@ if (!options.language) {
   throw new Error('Missing language');
 }
 
-const FILE_PATTERN = 'src/**/*.js';
+const FILE_PATTERN = ${options['file-pattern'];
 const OUTPUT_DIR = options['output-path'];
 const APP_PID = options.pid;
 const LOC_VERSION = options['loc-version'];
