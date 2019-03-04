@@ -87,7 +87,13 @@ function doUpload() {
   // extract messages
   const messages = globSync(FILE_PATTERN)
     .map(
-      path => babel.transformFileSync(path, {}).metadata['react-intl'].messages
+      path =>
+        babel.transformFileSync(path, {
+          plugins: [
+            '@babel/plugin-proposal-class-properties',
+            '@babel/plugin-proposal-export-default-from'
+          ]
+        }).metadata['react-intl'].messages
     )
     .reduce((collection, descriptors) => {
       descriptors.forEach(descriptor => {
