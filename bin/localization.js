@@ -3,7 +3,7 @@
 /*eslint no-console:0 */
 'use strict';
 
-const babel = require('babel-core');
+const babel = require('@babel/core');
 const globSync = require('glob').sync;
 const i18nStringsFiles = require('i18n-strings-files');
 const url = require('url');
