@@ -21,7 +21,7 @@ const options = commandLineArgs([
   { name: 'language', type: String, multiple: true },
   { name: 'upload-language', type: String, defaultValue: 'en' },
   { name: 'output-path', type: String, defaultValue: 'src/translations' }
-])
+]);
 
 if (!options['base-url']) {
   throw new Error('Missing base URL');
@@ -39,28 +39,35 @@ if (!options.language) {
   throw new Error('Missing language');
 }
 
-const FILE_PATTERN = ${options['file-pattern'];
+const FILE_PATTERN = options['file-pattern'];
 const OUTPUT_DIR = options['output-path'];
 const APP_PID = options.pid;
 const LOC_VERSION = options['loc-version'];
 const LOC_GROUP = options.group;
 const LANGUAGE_CODE = options['upload-language'];
-const UPLOAD_URL = `${options['base-url']}/uploadStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&groupID=${LOC_GROUP}&language=${LANGUAGE_CODE}`;
-const DOWNLOAD_URL = `${options['base-url']}/getStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&group=${LOC_GROUP}`;
+const UPLOAD_URL = `${
+  options['base-url']
+}/uploadStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&groupID=${LOC_GROUP}&language=${LANGUAGE_CODE}`;
+const DOWNLOAD_URL = `${
+  options['base-url']
+}/getStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&group=${LOC_GROUP}`;
 const LANGUAGES = options.language;
 
-console.dir({
-  FILE_PATTERN,
-  OUTPUT_DIR,
-  APP_PID,
-  LOC_VERSION,
-  LOC_GROUP,
-  LANGUAGE_CODE,
-  UPLOAD_URL,
-  DOWNLOAD_URL,
-  LANGUAGES
-}, { colors: true });
-console.log("\n");
+console.dir(
+  {
+    FILE_PATTERN,
+    OUTPUT_DIR,
+    APP_PID,
+    LOC_VERSION,
+    LOC_GROUP,
+    LANGUAGE_CODE,
+    UPLOAD_URL,
+    DOWNLOAD_URL,
+    LANGUAGES
+  },
+  { colors: true }
+);
+console.log('\n');
 
 const args = process.argv;
 if (args.length < 3) {
@@ -70,8 +77,7 @@ if (args.length < 3) {
 const action = args[2];
 if (action === 'upload') {
   doUpload();
-}
-else if (action === 'download') {
+} else if (action === 'download') {
   doDownload();
 }
 
@@ -80,8 +86,8 @@ function doUpload() {
 
   // extract messages
   const messages = globSync(FILE_PATTERN)
-    .map(path =>
-        babel.transformFileSync(path, { }).metadata['react-intl'].messages
+    .map(
+      path => babel.transformFileSync(path, {}).metadata['react-intl'].messages
     )
     .reduce((collection, descriptors) => {
       descriptors.forEach(descriptor => {
@@ -93,11 +99,19 @@ function doUpload() {
           const otherDescriptor = collection.get(id);
 
           if (defaultMessage !== otherDescriptor.defaultMessage) {
-            throw new Error(`Duplicate message id "${id}", but the \`defaultMessage\` are different: "${defaultMessage}" != "${otherDescriptor.defaultMessage}".`);
+            throw new Error(
+              `Duplicate message id "${id}", but the \`defaultMessage\` are different: "${defaultMessage}" != "${
+                otherDescriptor.defaultMessage
+              }".`
+            );
           }
 
           if (description !== otherDescriptor.description) {
-            throw new Error(`Duplicate message id "${id}", but the \`description\` are different: "${description}" != "${otherDescriptor.description}".`);
+            throw new Error(
+              `Duplicate message id "${id}", but the \`description\` are different: "${description}" != "${
+                otherDescriptor.description
+              }".`
+            );
           }
         }
 
@@ -108,7 +122,6 @@ function doUpload() {
     }, new Map());
 
   console.log(`Found ${messages.size} messages.`);
-
 
   // build localization data
   const data = {};
@@ -121,33 +134,39 @@ function doUpload() {
   });
 
   // compile strings
-  const strings = i18nStringsFiles.compile(data, { encoding: 'utf8', wantsComments : true });
-
+  const strings = i18nStringsFiles.compile(data, {
+    encoding: 'utf8',
+    wantsComments: true
+  });
 
   // upload
   const uploadUrl = url.parse(UPLOAD_URL);
 
-  const body = "file=BEGIN\n" + (new Buffer(strings).toString('base64')) + "\nEND";
+  const body =
+    'file=BEGIN\n' + new Buffer(strings).toString('base64') + '\nEND';
 
-  const upload = https.request({
-    host: uploadUrl.hostname,
-    port: uploadUrl.port,
-    path: uploadUrl.path,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+  const upload = https.request(
+    {
+      host: uploadUrl.hostname,
+      port: uploadUrl.port,
+      path: uploadUrl.path,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      rejectUnauthorized: false
     },
-    rejectUnauthorized: false
-  }, function(res) {
-    res.setEncoding('utf8');
-    res.on('data', chunk => {
-      console.log('Changes: ');
-      console.dir(chunk.split('<br><br>').slice(1), { colors: true })
-    });
-    res.on('end', () => {
-      console.log('Upload complete.');
-    });
-  });
+    function(res) {
+      res.setEncoding('utf8');
+      res.on('data', chunk => {
+        console.log('Changes: ');
+        console.dir(chunk.split('<br><br>').slice(1), { colors: true });
+      });
+      res.on('end', () => {
+        console.log('Upload complete.');
+      });
+    }
+  );
 
   // post the data
   upload.write(body);
@@ -156,7 +175,7 @@ function doUpload() {
 
 function doDownload() {
   LANGUAGES.forEach(doDownloadLanguage);
-  console.log('Download complete.')
+  console.log('Download complete.');
 }
 
 function doDownloadLanguage(language) {
@@ -164,43 +183,49 @@ function doDownloadLanguage(language) {
 
   console.log(`Loading translations for ${language}…`);
 
-  https.get({
-    host: downloadUrl.hostname,
-    port: downloadUrl.port,
-    path: downloadUrl.path,
-    rejectUnauthorized: false
-  }, function(res) {
-    var chunks = new String;
+  https.get(
+    {
+      host: downloadUrl.hostname,
+      port: downloadUrl.port,
+      path: downloadUrl.path,
+      rejectUnauthorized: false
+    },
+    function(res) {
+      var chunks = new String();
 
-    res.setEncoding('utf8');
-    res.on('data', chunk => {
-      chunks += chunk;
-    });
-
-    res.on('end', () => {
-      const messages = i18nStringsFiles.parse(chunks, { encoding: 'utf8', wantsComments: true });
-      const keys = Object.keys(messages);
-      const data = keys.reduce((collection, key) => {
-        const message = messages[key];
-
-        collection[key] = message.text;
-
-        return collection;
-      }, {});
-
-      const outputPath = path.format({
-        dir: OUTPUT_DIR,
-        name: language,
-        ext: '.json'
+      res.setEncoding('utf8');
+      res.on('data', chunk => {
+        chunks += chunk;
       });
 
-      fs.writeFile(outputPath, JSON.stringify(data, null, 4), function(err) {
-        if(err) {
-          console.error(err);
-        } else {
-          console.log(`Written ${keys.length} messages to ${outputPath}.`);
-        }
+      res.on('end', () => {
+        const messages = i18nStringsFiles.parse(chunks, {
+          encoding: 'utf8',
+          wantsComments: true
+        });
+        const keys = Object.keys(messages);
+        const data = keys.reduce((collection, key) => {
+          const message = messages[key];
+
+          collection[key] = message.text;
+
+          return collection;
+        }, {});
+
+        const outputPath = path.format({
+          dir: OUTPUT_DIR,
+          name: language,
+          ext: '.json'
+        });
+
+        fs.writeFile(outputPath, JSON.stringify(data, null, 4), function(err) {
+          if (err) {
+            console.error(err);
+          } else {
+            console.log(`Written ${keys.length} messages to ${outputPath}.`);
+          }
+        });
       });
-    });
-  });
+    }
+  );
 }
