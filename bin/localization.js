@@ -20,7 +20,9 @@ const options = commandLineArgs([
   { name: 'group', type: String },
   { name: 'language', type: String, multiple: true },
   { name: 'upload-language', type: String, defaultValue: 'en' },
-  { name: 'output-path', type: String, defaultValue: 'src/translations' }
+  { name: 'output-path', type: String, defaultValue: 'src/translations' },
+  { name: 'babel-preset', type: String, multiple: true },
+  { name: 'babel-plugin', type: String, multiple: true }
 ]);
 
 if (!options['base-url']) {
@@ -52,6 +54,8 @@ const DOWNLOAD_URL = `${
   options['base-url']
 }/getStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&group=${LOC_GROUP}`;
 const LANGUAGES = options.language;
+const BABEL_PRESETS = options['babel-preset'];
+const BABEL_PLUGINS = options['babel-plugin'];
 
 console.dir(
   {
@@ -63,7 +67,9 @@ console.dir(
     LANGUAGE_CODE,
     UPLOAD_URL,
     DOWNLOAD_URL,
-    LANGUAGES
+    LANGUAGES,
+    BABEL_PRESETS,
+    BABEL_PLUGINS
   },
   { colors: true }
 );
@@ -89,10 +95,8 @@ function doUpload() {
     .map(
       path =>
         babel.transformFileSync(path, {
-          plugins: [
-            '@babel/plugin-proposal-class-properties',
-            '@babel/plugin-proposal-export-default-from'
-          ]
+          presets: BABEL_PRESETS,
+          plugins: BABEL_PLUGINS
         }).metadata['react-intl'].messages
     )
     .reduce((collection, descriptors) => {
