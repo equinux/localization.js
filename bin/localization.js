@@ -13,6 +13,7 @@ const path = require("path");
 const commandLineArgs = require("command-line-args");
 
 const options = commandLineArgs([
+  { name: "command", defaultOption: true },
   { name: "base-url", type: String },
   { name: "file-pattern", type: String, defaultValue: "src/**/*.js" },
   { name: "pid", type: String },
