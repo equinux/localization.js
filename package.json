@@ -1,7 +1,7 @@
 {
   "name": "localization.js",
   "description": "PLI localization for React apps",
-  "version": "0.3.7",
+  "version": "0.4.0",
   "author": "Dominique d'Argent (argent@equinux.com)",
   "homepage": "http://equinux.com/",
   "repository": "equinux/localization.js",
@@ -15,7 +15,7 @@
   "keywords": ["PLI", "cli", "localization", "tool"],
   "dependencies": {
     "@babel/core": "^7.3.4",
-    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/plugin-transform-class-properties": "^7.25.9",
     "@babel/preset-env": "^7.3.4",
     "@babel/preset-react": "^7.0.0",
     "babel-plugin-formatjs": "^10.4.0",
