@@ -118,14 +118,23 @@ function doUpload() {
       descriptors.forEach((descriptor) => {
         const id = descriptor.id;
         const defaultMessage = descriptor.defaultMessage;
-        const description = descriptor.description;
 
         if (
-          typeof description === "object" &&
-          typeof description.skipUpload === "boolean" &&
-          description.skipUpload
+          typeof descriptor.description === "object" &&
+          typeof descriptor.description.skipUpload === "boolean" &&
+          descriptor.description.skipUpload
         ) {
           return;
+        }
+
+        let description = "";
+        if (typeof descriptor.description === "string") {
+          description = descriptor.description;
+        } else if (
+          typeof descriptor.description === "object" &&
+          typeof descriptor.description.comment === "string"
+        ) {
+          description = descriptor.description.comment;
         }
 
         if (collection.has(id)) {
@@ -144,17 +153,7 @@ function doUpload() {
           }
         }
 
-        const desc = "";
-        if (typeof description === "string") {
-          desc = description;
-        } else if (
-          typeof description === "object" &&
-          typeof description.comment === "string"
-        ) {
-          desc = description.comment;
-        }
-
-        collection.set(id, { defaultMessage, description: desc });
+        collection.set(id, { defaultMessage, description });
       });
 
       return collection;
