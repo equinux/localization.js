@@ -6,7 +6,6 @@
 const babel = require("@babel/core");
 const globSync = require("glob").sync;
 const i18nStringsFiles = require("i18n-strings-files");
-const url = require("url");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
@@ -22,6 +21,7 @@ const options = commandLineArgs([
   { name: "language", type: String, multiple: true },
   { name: "upload-language", type: String, defaultValue: "en" },
   { name: "output-path", type: String, defaultValue: "src/translations" },
+  { name: "fail-empty", type: Boolean, defaultValue: false },
   { name: "module-source-name", type: String, multiple: true },
   { name: "babel-preset", type: String, multiple: true },
   { name: "babel-plugin", type: String, multiple: true },
@@ -52,6 +52,7 @@ const LANGUAGE_CODE = options["upload-language"];
 const UPLOAD_URL = `${options["base-url"]}/uploadStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&groupID=${LOC_GROUP}&language=${LANGUAGE_CODE}`;
 const DOWNLOAD_URL = `${options["base-url"]}/getStrings.php?pid=${APP_PID}&version=${LOC_VERSION}&group=${LOC_GROUP}`;
 const LANGUAGES = options.language;
+const FAIL_EMPTY = options["fail-empty"];
 const BABEL_PRESETS = options["babel-preset"];
 const BABEL_PLUGINS = options["babel-plugin"];
 const MODULE_SOURCE_NAMES = options["module-source-name"] ?? ["formatjs"];
@@ -67,11 +68,12 @@ console.dir(
     UPLOAD_URL,
     DOWNLOAD_URL,
     LANGUAGES,
+    ALLOW_EMPTY: FAIL_EMPTY,
     MODULE_SOURCE_NAMES,
     BABEL_PRESETS,
     BABEL_PLUGINS,
   },
-  { colors: true }
+  { colors: true },
 );
 console.log("\n");
 
@@ -103,7 +105,7 @@ function doUpload() {
                   onMsgExtracted: (_, msg) => (messages = msg),
                 },
               ]
-            : plugin
+            : plugin,
         );
 
         babel.transformFileSync(path, {
@@ -112,7 +114,7 @@ function doUpload() {
         });
 
         return messages;
-      }).flat()
+      }).flat(),
     )
     .reduce((collection, descriptors) => {
       descriptors.forEach((descriptor) => {
@@ -142,13 +144,13 @@ function doUpload() {
 
           if (defaultMessage !== otherDescriptor.defaultMessage) {
             throw new Error(
-              `Duplicate message id "${id}", but the \`defaultMessage\` are different: "${defaultMessage}" != "${otherDescriptor.defaultMessage}".`
+              `Duplicate message id "${id}", but the \`defaultMessage\` are different: "${defaultMessage}" != "${otherDescriptor.defaultMessage}".`,
             );
           }
 
           if (description !== otherDescriptor.description) {
             throw new Error(
-              `Duplicate message id "${id}", but the \`description\` are different: "${description}" != "${otherDescriptor.description}".`
+              `Duplicate message id "${id}", but the \`description\` are different: "${description}" != "${otherDescriptor.description}".`,
             );
           }
         }
@@ -178,7 +180,7 @@ function doUpload() {
   });
 
   // upload
-  const uploadUrl = url.parse(UPLOAD_URL);
+  const uploadUrl = new URL(UPLOAD_URL);
 
   const body =
     "file=BEGIN\n" + new Buffer(strings).toString("base64") + "\nEND";
@@ -187,7 +189,7 @@ function doUpload() {
     {
       host: uploadUrl.hostname,
       port: uploadUrl.port,
-      path: uploadUrl.path,
+      path: uploadUrl.pathname + uploadUrl.search,
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -203,7 +205,7 @@ function doUpload() {
       res.on("end", () => {
         console.log("Upload complete.");
       });
-    }
+    },
   );
 
   // post the data
@@ -213,11 +215,10 @@ function doUpload() {
 
 function doDownload() {
   LANGUAGES.forEach(doDownloadLanguage);
-  console.log("Download complete.");
 }
 
-function doDownloadLanguage(language) {
-  const downloadUrl = url.parse(DOWNLOAD_URL + "&lang=" + language);
+async function doDownloadLanguage(language) {
+  const downloadUrl = new URL(DOWNLOAD_URL + "&lang=" + language);
 
   console.log(`Loading translations for ${language}…`);
 
@@ -225,7 +226,7 @@ function doDownloadLanguage(language) {
     {
       host: downloadUrl.hostname,
       port: downloadUrl.port,
-      path: downloadUrl.path,
+      path: downloadUrl.pathname + downloadUrl.search,
       rejectUnauthorized: false,
     },
     function (res) {
@@ -242,6 +243,10 @@ function doDownloadLanguage(language) {
           wantsComments: true,
         });
         const keys = Object.keys(messages);
+        if (FAIL_EMPTY && keys.length === 0) {
+          console.error("Error: No localization keys found");
+          process.exit(1);
+        }
         const data = keys.reduce((collection, key) => {
           const message = messages[key];
 
@@ -264,6 +269,6 @@ function doDownloadLanguage(language) {
           }
         });
       });
-    }
+    },
   );
 }
