@@ -213,8 +213,11 @@ function doUpload() {
   upload.end();
 }
 
-function doDownload() {
-  LANGUAGES.forEach(doDownloadLanguage);
+async function doDownload() {
+  for (const language of LANGUAGES) {
+    await doDownloadLanguage(language);
+  }
+  console.log("Download complete.");
 }
 
 async function doDownloadLanguage(language) {
@@ -222,53 +225,59 @@ async function doDownloadLanguage(language) {
 
   console.log(`Loading translations for ${language}…`);
 
-  https.get(
-    {
-      host: downloadUrl.hostname,
-      port: downloadUrl.port,
-      path: downloadUrl.pathname + downloadUrl.search,
-      rejectUnauthorized: false,
-    },
-    function (res) {
-      var chunks = new String();
+  return new Promise((resolve, reject) => {
+    https.get(
+      {
+        host: downloadUrl.hostname,
+        port: downloadUrl.port,
+        path: downloadUrl.pathname + downloadUrl.search,
+        rejectUnauthorized: false,
+      },
+      function (res) {
+        var chunks = new String();
 
-      res.setEncoding("utf8");
-      res.on("data", (chunk) => {
-        chunks += chunk;
-      });
-
-      res.on("end", () => {
-        const messages = i18nStringsFiles.parse(chunks, {
-          encoding: "utf8",
-          wantsComments: true,
-        });
-        const keys = Object.keys(messages);
-        if (FAIL_EMPTY && keys.length === 0) {
-          console.error("Error: No localization keys found");
-          process.exit(1);
-        }
-        const data = keys.reduce((collection, key) => {
-          const message = messages[key];
-
-          collection[key] = message.text;
-
-          return collection;
-        }, {});
-
-        const outputPath = path.format({
-          dir: OUTPUT_DIR,
-          name: language,
-          ext: ".json",
+        res.setEncoding("utf8");
+        res.on("data", (chunk) => {
+          chunks += chunk;
         });
 
-        fs.writeFile(outputPath, JSON.stringify(data, null, 4), function (err) {
-          if (err) {
-            console.error(err);
-          } else {
-            console.log(`Written ${keys.length} messages to ${outputPath}.`);
+        res.on("end", () => {
+          const messages = i18nStringsFiles.parse(chunks, {
+            encoding: "utf8",
+            wantsComments: true,
+          });
+          const keys = Object.keys(messages);
+          if (FAIL_EMPTY && keys.length === 0) {
+            console.error("Error: No localization keys found for " + language);
+            process.exit(1);
           }
+          const data = keys.reduce((collection, key) => {
+            const message = messages[key];
+
+            collection[key] = message.text;
+
+            return collection;
+          }, {});
+
+          const outputPath = path.format({
+            dir: OUTPUT_DIR,
+            name: language,
+            ext: ".json",
+          });
+
+          fs.writeFile(outputPath, JSON.stringify(data, null, 4), function (err) {
+            if (err) {
+              console.error(err);
+              reject(err);
+            } else {
+              console.log(`Written ${keys.length} messages to ${outputPath}.`);
+              resolve();
+            }
+          });
         });
-      });
-    },
-  );
+
+        res.on("error", reject);
+      },
+    ).on("error", reject);
+  });
 }
